@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>评测端 · Comparator — mockup</title>
+<style>
+/* ── design tokens: borrowed VERBATIM from vibehub/workbench tokens.css ── */
+:root{
+  --ink-900:#191b1f; --ink-700:#3c3f45; --ink-500:#6b6f77; --ink-400:#8b8f97; --ink-300:#b4b7bd; --ink-200:#d9dade; --ink-150:#e7e8ea; --ink-100:#f0f0f1;
+  --paper:#f7f7f5; --card:#ffffff;
+  --need:#c0392b; --need-bg:#f6e8e5; --need-ink:#9c3022;         /* 独有 / gap */
+  --clash:#9a6b16; --clash-bg:#f4ecd9; --clash-ink:#775211;     /* 冲突 */
+  --alive:#3e7d4c; --alive-bg:#e4efe6; --alive-ink:#2f6039;     /* 一致 */
+  --read:#5a7fb8;  --read-ink:#48699c;
+  --sh-1:0 1px 2px rgba(20,22,26,.05);
+  --sh-2:0 1px 3px rgba(20,22,26,.07),0 4px 14px rgba(20,22,26,.06);
+  --r-s:6px; --r-m:10px; --r-l:16px;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-6:24px;
+  --fs-1:10px; --fs-2:11px; --fs-3:12px; --fs-4:13px;
+  --t-fast:120ms; --t-base:200ms; --ease:cubic-bezier(.25,.8,.3,1);
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;
+  --mono:ui-monospace,'SF Mono',Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  font-family:var(--sans); color:var(--ink-900); background:var(--paper);
+  font-size:var(--fs-3); line-height:1.5;
+  display:grid; grid-template-columns:248px 1fr; height:100vh; overflow:hidden;
+}
+.u-label{font-size:var(--fs-1); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-500)}
+
+/* ── left rail: comparison queue ── */
+.rail{border-right:1px solid var(--ink-150); background:var(--card); display:flex; flex-direction:column}
+.rail__hd{padding:var(--sp-3) var(--sp-4) var(--sp-2)}
+.rail__hd h1{font-size:var(--fs-4); margin:0; font-weight:600}
+.queue{padding:var(--sp-2); overflow:auto; flex:1}
+.qitem{padding:var(--sp-2) var(--sp-3); border-radius:var(--r-s); cursor:pointer; margin-bottom:2px; display:flex; align-items:center; gap:var(--sp-2); transition:background var(--t-fast) var(--ease)}
+.qitem:hover{background:var(--ink-100)}
+.qitem--on{background:var(--ink-100); box-shadow:inset 2px 0 0 var(--ink-900)}
+.qitem__pair{flex:1; font-size:var(--fs-3)}
+.qitem__pct{font-family:var(--mono); font-size:var(--fs-2); color:var(--ink-500)}
+.qbar{height:3px; border-radius:2px; background:var(--ink-150); margin-top:var(--sp-1); overflow:hidden}
+.qbar>i{display:block; height:100%; background:var(--alive)}
+.rail__ft{padding:var(--sp-3) var(--sp-4)}
+.btn{font-family:var(--sans); font-size:var(--fs-3); border:1px solid var(--ink-200); background:var(--card); color:var(--ink-900); border-radius:var(--r-s); padding:var(--sp-2) var(--sp-3); cursor:pointer; transition:all var(--t-fast) var(--ease)}
+.btn:hover{border-color:var(--ink-300)}
+.btn--full{width:100%}
+
+/* ── center: header + two panels ── */
+.main{display:flex; flex-direction:column; min-width:0}
+.hdr{padding:var(--sp-3) var(--sp-4); border-bottom:1px solid var(--ink-150); background:var(--card)}
+.hdr__top{display:flex; align-items:baseline; gap:var(--sp-3)}
+.score{font-size:26px; font-weight:600; font-family:var(--mono); letter-spacing:-.02em; white-space:nowrap}
+.score small{font-size:var(--fs-2); font-weight:400; color:var(--ink-500); font-family:var(--sans); margin-left:6px}
+.gauge{flex:1; height:8px; border-radius:4px; background:var(--ink-150); overflow:hidden; align-self:center}
+.gauge>i{display:block; height:100%; background:linear-gradient(90deg,var(--alive),#5aa06a)}
+.tiers{display:flex; gap:var(--sp-6); margin-top:var(--sp-3)}
+.tier{display:flex; align-items:center; gap:var(--sp-2)}
+.tier__w{font-size:var(--fs-1); color:var(--ink-400)}
+.dot{width:11px; height:11px; border-radius:50%; display:inline-block}
+.dot--agree{background:var(--alive)} .dot--conflict{background:var(--clash)} .dot--gap{background:var(--need)}
+.hdr__why{font-size:var(--fs-2); color:var(--ink-500); margin-top:var(--sp-2)}
+
+/* shared question band */
+.qbar2{padding:var(--sp-2) var(--sp-4); border-bottom:1px solid var(--ink-150); background:var(--paper); font-size:var(--fs-2); color:var(--ink-500)}
+.qbar2 b{color:var(--ink-900); font-weight:600}
+
+.panes{display:grid; grid-template-columns:1fr 1fr; gap:0; flex:1; min-height:0}
+.pane{overflow:auto; padding:var(--sp-3) var(--sp-4) 72px}
+.pane+.pane{border-left:1px solid var(--ink-150)}
+.pane__hd{position:sticky; top:0; background:var(--paper); padding:2px 0 var(--sp-2); margin-bottom:var(--sp-3); border-bottom:1px solid var(--ink-150); z-index:2; display:flex; align-items:baseline; gap:var(--sp-2)}
+.pane__hd b{font-size:var(--fs-4)}
+/* full original text — real prose, nothing removed */
+.doc{max-width:62ch}
+.doc p{margin:0 0 var(--sp-3); line-height:1.7; color:var(--ink-900)}
+
+/* ── inline highlight spans: colour = relationship, underline weight + bold = salience ── */
+.hl{border-radius:3px; padding:1px 2px; cursor:pointer; box-shadow:inset 0 calc(-1 * var(--u,2px)) 0 var(--hlc); transition:background var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease), outline-color var(--t-fast) var(--ease); outline:2px solid transparent; outline-offset:1px}
+.hl--agree{--hlc:var(--alive); background:var(--alive-bg)}
+.hl--conflict{--hlc:var(--clash); background:var(--clash-bg)}
+.hl--gap{--hlc:var(--need); background:var(--need-bg)}
+.hl--big{--u:3px; font-weight:600}
+.hl--mid{--u:2px}
+.hl--small{--u:1px}
+/* correlate-hover: pop the matched group, mute other highlights, keep all prose readable */
+.focus .hl:not(.lit){background:transparent; box-shadow:inset 0 -1px 0 var(--ink-200); font-weight:400}
+.hl.lit{outline-color:rgba(25,27,31,.22)}
+.hl.pin{outline-color:var(--ink-900)}
+/* filters */
+.diffs .hl--agree{background:transparent; box-shadow:inset 0 -1px 0 var(--ink-200); font-weight:400; cursor:default}
+.onlybig .hl:not(.hl--big){background:transparent; box-shadow:none; font-weight:400; cursor:default}
+
+/* ── legend / filter (floating bottom-left) ── */
+.legend{position:fixed; left:256px; bottom:var(--sp-3); display:flex; gap:var(--sp-2); align-items:center; background:var(--card); border:1px solid var(--ink-150); border-radius:var(--r-m); padding:var(--sp-2) var(--sp-3); box-shadow:var(--sh-2); font-size:var(--fs-2); z-index:5}
+.legend .k{display:flex; align-items:center; gap:5px; color:var(--ink-700)}
+.legend .sep{width:1px; height:16px; background:var(--ink-150)}
+.pill{font-size:var(--fs-2); border:1px solid var(--ink-200); background:var(--card); border-radius:999px; padding:3px 10px; cursor:pointer; color:var(--ink-700); transition:all var(--t-fast) var(--ease)}
+.pill--on{background:var(--ink-900); color:#fff; border-color:var(--ink-900)}
+
+/* ── right adjudication card (slide-in) ── */
+.adj{position:fixed; top:0; right:0; height:100%; width:360px; background:var(--card); border-left:1px solid var(--ink-150); box-shadow:var(--sh-2); transform:translateX(100%); transition:transform var(--t-base) var(--ease); display:flex; flex-direction:column; z-index:10}
+.adj--open{transform:none}
+.adj__hd{padding:var(--sp-3) var(--sp-4); border-bottom:1px solid var(--ink-150); display:flex; align-items:center; justify-content:space-between}
+.adj__rel{display:inline-flex; align-items:center; gap:6px; font-size:var(--fs-2); font-weight:600; padding:3px 10px; border-radius:999px}
+.adj__rel--agree{background:var(--alive-bg); color:var(--alive-ink)}
+.adj__rel--conflict{background:var(--clash-bg); color:var(--clash-ink)}
+.adj__rel--gap{background:var(--need-bg); color:var(--need-ink)}
+.adj__x{border:none; background:none; font-size:16px; cursor:pointer; color:var(--ink-400)}
+.adj__body{padding:var(--sp-4); overflow:auto; flex:1}
+.side{margin-bottom:var(--sp-4)}
+.side .u-label{margin-bottom:4px}
+.side p{margin:0; padding:var(--sp-2) var(--sp-3); background:var(--paper); border-radius:var(--r-s); border:1px solid var(--ink-150); line-height:1.6}
+.side--muted p{color:var(--ink-400); font-style:italic}
+.meta{font-size:var(--fs-2); color:var(--ink-500); margin-bottom:var(--sp-4)}
+.adj__ft{padding:var(--sp-3) var(--sp-4); border-top:1px solid var(--ink-150)}
+.verdict{display:flex; gap:var(--sp-2); margin-bottom:var(--sp-2)}
+.verdict .btn{flex:1}
+textarea{width:100%; min-height:52px; max-height:124px; resize:vertical; font-family:var(--sans); font-size:var(--fs-3); border:1px solid var(--ink-200); border-radius:var(--r-s); padding:var(--sp-2); color:var(--ink-900)}
+</style>
+</head>
+<body>
+
+<!-- LEFT RAIL: comparison queue -->
+<aside class="rail">
+  <div class="rail__hd"><h1>评测端 · Comparator</h1></div>
+  <div class="queue" id="queue"></div>
+  <div class="rail__ft"><button class="btn btn--full">＋ 新对比</button></div>
+</aside>
+
+<!-- CENTER -->
+<main class="main">
+  <div class="hdr">
+    <div class="hdr__top">
+      <div class="score" id="score">–<small>加权一致度</small></div>
+      <div class="gauge"><i id="gaugeFill" style="width:0%"></i></div>
+    </div>
+    <div class="tiers" id="tiers"></div>
+    <div class="hdr__why">大观点 3/3 一致 → 撑起分数;小观点多为分歧/独有,但权重低,拉不下来。<b>颜色=关系,下划线粗细+加粗=重要性。</b></div>
+  </div>
+  <div class="qbar2">问题 · <b>如何判断一家公司值不值得长期投资?</b></div>
+
+  <div class="panes" id="panes" onmouseleave="clearCorrelate()">
+    <section class="pane">
+      <div class="pane__hd"><b>A · 墨苍离 原答</b> <span class="u-label">source output · 全文</span></div>
+      <div class="doc" id="docA"></div>
+    </section>
+    <section class="pane">
+      <div class="pane__hd"><b>B · scale-v3 产出</b> <span class="u-label">generated output · 全文</span></div>
+      <div class="doc" id="docB"></div>
+    </section>
+  </div>
+</main>
+
+<!-- floating legend + filters -->
+<div class="legend">
+  <span class="k"><span class="dot dot--agree"></span>一致</span>
+  <span class="k"><span class="dot dot--conflict"></span>冲突</span>
+  <span class="k"><span class="dot dot--gap"></span>独有</span>
+  <span class="sep"></span>
+  <span class="u-label">筛选</span>
+  <span class="pill pill--on" data-f="all" onclick="setFilter('all',this)">全部</span>
+  <span class="pill" data-f="diffs" onclick="setFilter('diffs',this)">仅分歧</span>
+  <span class="pill" data-f="big" onclick="setFilter('big',this)">仅大观点</span>
+</div>
+
+<!-- RIGHT adjudication card -->
+<aside class="adj" id="adj">
+  <div class="adj__hd">
+    <span class="adj__rel" id="adjRel">—</span>
+    <button class="adj__x" onclick="closeAdj()">✕</button>
+  </div>
+  <div class="adj__body">
+    <div class="side" id="adjA"><div class="u-label">A · 墨苍离</div><p></p></div>
+    <div class="side" id="adjB"><div class="u-label">B · scale-v3</div><p></p></div>
+    <div class="meta" id="adjMeta"></div>
+  </div>
+  <div class="adj__ft">
+    <div class="u-label" style="margin-bottom:6px">裁决</div>
+    <div class="verdict">
+      <button class="btn">✓ A 更好</button>
+      <button class="btn">＝ 相当</button>
+      <button class="btn">✓ B 更好</button>
+    </div>
+    <textarea placeholder="记一句为什么…"></textarea>
+  </div>
+</aside>
+
+<script>
+/* ── claim registry: rel/salience + the exact sentence as it appears in each full text ── */
+const GROUPS = {
+  g1:{rel:'agree',   sal:'big'},
+  g2:{rel:'agree',   sal:'big'},
+  g3:{rel:'agree',   sal:'big'},
+  g4:{rel:'conflict',sal:'mid'},
+  g5:{rel:'agree',   sal:'mid'},
+  g6:{rel:'conflict',sal:'small'},
+  g7:{rel:'agree',   sal:'small'},
+  g8:{rel:'gap',     sal:'small'},   // A only
+  g9:{rel:'gap',     sal:'small'},   // B only
+};
+const W={big:3,mid:2,small:1}, SAL_CN={big:'大',mid:'中',small:'小'}, REL_CN={agree:'一致',conflict:'冲突',gap:'独有'};
+
+/* ── FULL original texts. A paragraph is an array of segments;
+   a string is plain prose, {g:'gN'} is a highlighted claim span carrying that sentence. ── */
+const DOC_A = [
+  ['这个问题我想了很多年,先说结论:多数人把顺序搞反了。'],
+  [{g:'g1',t:'定价必须先看竞争壁垒——没有壁垒,就没有护城河可言。'},'很多人上来就套 DCF、套 PE,可如果这门生意谁都能做,再漂亮的模型也是空中楼阁,所以我的第一刀永远砍在壁垒上。'],
+  [{g:'g2',t:'其次,第一步永远是证伪需求:先确认需求真伪,再谈供给。'},'需求是不是真的存在、是不是刚需、会不会被替代,这些没想清楚之前,供给端的效率优化都不值得看。'],
+  ['说到宏观,我知道很多人爱聊,但',{g:'g4',t:'我一般不碰宏观变量——不可控,不如不猜。'},'与其猜美联储,不如把精力放在能看懂的生意上。'],
+  ['具体到商业模型,',{g:'g5',t:'单位经济先算清,CAC 决定你能用哪些渠道。'},'一门生意的获客成本决定了它的渠道天花板,这个必须先算。'],
+  ['估值层面,',{g:'g6',t:'估值以 DCF 为主,'},'别的都是辅助。仓位上,',{g:'g7',t:'仓位该集中时就集中,'},'分散是无知的保护伞。'],
+  ['最后,也是最重要的,',{g:'g3',t:'长期看,核心是管理层的资本配置能力。'},'一家公司十年后值多少钱,很大程度上取决于管理层把赚来的钱投到了哪里。'],
+  ['补一句操作细节:我习惯',{g:'g8',t:'附一张现金流敏感性表,'},'把关键假设摆出来,方便随时复盘。'],
+];
+const DOC_B = [
+  ['判断一家公司是否值得长期投资,可以从以下几个层面系统展开。'],
+  ['首先是竞争格局。',{g:'g1',t:'护城河的本质就是竞争壁垒,这是任何定价判断的前提。'},'在给出任何估值之前,必须先确认这门生意是否具备可持续的竞争壁垒。'],
+  ['其次是需求验证。',{g:'g2',t:'先证伪需求再看供给,顺序不能反。'},'只有确认需求真实且难以被替代,才有必要深入分析供给侧的效率。'],
+  ['在风险管理上,',{g:'g4',t:'宏观是必须持续监控的风险,忽略它是失职。'},'利率、汇率、政策等宏观变量会实质性影响长期回报,应当纳入持续跟踪。'],
+  ['关于商业模型,',{g:'g5',t:'渠道决定利润率,而渠道选择要先把 CAC 算明白。'},'获客成本是一切渠道决策的前提。'],
+  ['估值方法上,',{g:'g6',t:'DCF 太脆弱,我更信相对估值——'},'DCF 对假设过于敏感,相对估值往往更稳健。仓位方面,',{g:'g7',t:'该重仓时别怕重仓,'},'在高确信度机会上应当集中配置。'],
+  ['管理层维度同样关键。',{g:'g3',t:'看长期就得看管理层怎么配置资本,这是分水岭。'},'长期回报的差距,很大程度上由资本配置能力拉开。'],
+  ['最后一点方法论建议:',{g:'g9',t:'每个 claim 都要能溯源到出处,'},'为每一条结论标注信息来源,便于审计与复盘。'],
+];
+
+function computeAgreement(){let n=0,d=0;for(const id in GROUPS){const w=W[GROUPS[id].sal];d+=w;if(GROUPS[id].rel==='agree')n+=w;}return Math.round(100*n/d);}
+function renderHeader(){
+  const pct=computeAgreement();
+  document.getElementById('score').innerHTML=pct+'%<small>加权一致度</small>';
+  document.getElementById('gaugeFill').style.width=pct+'%';
+  const t=document.getElementById('tiers'); t.innerHTML='';
+  for(const sal of ['big','mid','small']){
+    const dots=Object.values(GROUPS).filter(g=>g.sal===sal).map(g=>`<span class="dot dot--${g.rel}"></span>`).join('');
+    t.innerHTML+=`<div class="tier"><span class="u-label">${SAL_CN[sal]}观点</span>${dots}<span class="tier__w">权重 ${W[sal]}</span></div>`;
+  }
+}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function renderDoc(el, doc, side){
+  el.innerHTML='';
+  doc.forEach(para=>{
+    const p=document.createElement('p');
+    para.forEach(seg=>{
+      if(typeof seg==='string'){ p.insertAdjacentHTML('beforeend', esc(seg)); }
+      else{ const g=GROUPS[seg.g];
+        p.insertAdjacentHTML('beforeend',
+          `<span class="hl hl--${g.rel} hl--${g.sal}" data-g="${seg.g}" data-side="${side}"
+             data-text="${esc(seg.t)}" onmouseenter="correlate('${seg.g}')" onclick="openAdj('${seg.g}')">${esc(seg.t)}</span>`);
+      }
+    });
+    el.appendChild(p);
+  });
+}
+function renderQueue(){
+  const pairs=[['A','B',computeAgreement(),true],['A','C',41,false],['B','C',63,false]];
+  const q=document.getElementById('queue'); q.innerHTML='';
+  pairs.forEach(([x,y,pct,on])=>{
+    q.innerHTML+=`<div class="qitem ${on?'qitem--on':''}"><div style="flex:1">
+      <div class="qitem__pair">${x} vs ${y}</div><div class="qbar"><i style="width:${pct}%"></i></div></div>
+      <span class="qitem__pct">${pct}%</span></div>`;
+  });
+}
+
+function correlate(id){
+  document.getElementById('panes').classList.add('focus');
+  document.querySelectorAll('.hl').forEach(n=>n.classList.toggle('lit', n.dataset.g===id));
+}
+function clearCorrelate(){
+  document.getElementById('panes').classList.remove('focus');
+  document.querySelectorAll('.hl').forEach(n=>n.classList.remove('lit'));
+}
+function openAdj(id){
+  const g=GROUPS[id];
+  document.querySelectorAll('.hl').forEach(n=>n.classList.toggle('pin', n.dataset.g===id));
+  const rel=document.getElementById('adjRel');
+  rel.className='adj__rel adj__rel--'+g.rel;
+  rel.textContent=REL_CN[g.rel]+(g.rel==='agree'?' · entailment':g.rel==='conflict'?' · contradiction':' · 仅一侧');
+  const spanA=document.querySelector(`.hl[data-g="${id}"][data-side="a"]`);
+  const spanB=document.querySelector(`.hl[data-g="${id}"][data-side="b"]`);
+  const a=document.getElementById('adjA'), b=document.getElementById('adjB');
+  a.className='side'+(spanA?'':' side--muted'); a.querySelector('p').textContent=spanA?spanA.dataset.text:'（A 无对应观点）';
+  b.className='side'+(spanB?'':' side--muted'); b.querySelector('p').textContent=spanB?spanB.dataset.text:'（B 无对应观点）';
+  document.getElementById('adjMeta').innerHTML=`重要性:<b>${SAL_CN[g.sal]}观点</b>(权重 ${W[g.sal]}) &nbsp;·&nbsp; 关系:<b>${REL_CN[g.rel]}</b>`;
+  document.getElementById('adj').classList.add('adj--open');
+}
+function closeAdj(){
+  document.getElementById('adj').classList.remove('adj--open');
+  document.querySelectorAll('.hl').forEach(n=>n.classList.remove('pin'));
+}
+function setFilter(mode, el){
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('pill--on'));
+  el.classList.add('pill--on');
+  const panes=document.getElementById('panes');
+  panes.classList.toggle('diffs', mode==='diffs');
+  panes.classList.toggle('onlybig', mode==='big');
+}
+
+renderHeader();
+renderDoc(document.getElementById('docA'), DOC_A, 'a');
+renderDoc(document.getElementById('docB'), DOC_B, 'b');
+renderQueue();
+</script>
+</body>
+</html>
