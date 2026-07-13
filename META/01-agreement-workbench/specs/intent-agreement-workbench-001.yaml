@@ -1,0 +1,107 @@
+spec_id: intent-agreement-workbench-001
+type: intent
+state: active
+
+intent:
+  summary: "The evaluation end: take any two (or a few) resources/outputs and convey HOW MUCH THEY AGREE — a salience-weighted agreement score plus where they align vs conflict, aligned on meaning not position. Deliberately NOT a 'which is better' ranking (that is hard to assess and subjective); agreement is the tractable, defensible frame and fits the current use case."
+  detail: |
+    RENAMED 2026-07-12 from comparison-workbench → agreement-workbench, and
+    re-centered on AGREEMENT.
+
+    WHY AGREEMENT, NOT "WHICH IS BETTER".
+      Judging that one output is BETTER than another is hard to evaluate and
+      subjective — it does not give us a defensible signal. Measuring how much two
+      outputs AGREE (and where they diverge) is tractable, closer to our current
+      case (e.g. a distilled product vs the source, or vs another method), and is a
+      better starting point. So the headline the UI conveys is: "how different are
+      these two, and where," expressed as agreement — not a ranking.
+
+    THE PROBLEM (Frederick's complaint). Two outputs read raw, side by side, have
+    no comparability. Textwise diff / string-similarity (the online plagiarism
+    "colour boards") is not enough: two pieces can express the SAME viewpoint in
+    completely different words, and the OPPOSITE viewpoint in nearly identical
+    words. We need meaning-level agreement.
+
+    THE AGREEMENT MODEL — three layers, each borrowing an established vocabulary
+    from another field (so we do not invent our own):
+
+      LAYER 1 · UNITS — decompose each output into typed comparable units:
+        viewpoints/claims, examples, entities/parties ("双方是谁").
+        Borrow: content-analysis "coding units / meaning units"; argument-mining
+        claim → premise → evidence.
+
+      LAYER 2 · RELATION — align units across the two sides (cosine gives
+        candidates), then label each aligned pair with an NLI-style relation:
+          - Agree      (entailment)      — same viewpoint
+          - Conflict   (contradiction)   — opposite viewpoint
+          - Neutral    (neutral)         — related topic, no agreement claim
+          - One-sided  (present on only one side)
+        Borrow: NLI (entailment/contradiction/neutral); stance detection.
+
+      LAYER 3 · WEIGHTED SCORE — rate each unit's salience 大 / 中 / 小 (big /
+        medium / small), then aggregate into a SALIENCE-WEIGHTED agreement score.
+        Big units dominate: big viewpoints agree + many small ones disagree ⇒
+        score still HIGH; small ones all agree but big ones differ ⇒ score LOW.
+        Borrow: RST nucleus(核心)/satellite(枝节) for the salience tiering;
+        weighted Cohen's κ (weights disagreements by severity) and
+        Krippendorff's α for the chance-corrected aggregate; "concordance" from
+        meta-analysis as the name for the overall agreement.
+
+      ALWAYS show the score WITH its tier breakdown (agreement on 大 vs 中 vs 小,
+      separately) — never let one number hide the structure.
+
+    CORE UX — convey "how different, and where":
+      - Header: the weighted agreement score + a 大/中/小 tier-breakdown bar.
+      - Two (≤3) native-structure panels with semantic alignment ribbons between
+        matched units, colored by relation: green=Agree, red=Conflict,
+        gray=Neutral/One-sided. This is the "colour board", but semantic and
+        relation-typed. Never force positional row-alignment.
+      - Concordance grid (scalable / N-way): rows = union of units grouped by
+        大/中/小, columns = the outputs, cells = Agree/Conflict/absent. Sorting by
+        tier floats the big points to the top.
+
+    SOURCE-ANCHORED VIEW (conditional — only when the outputs share a source, e.g.
+      book distillation): coverage heatmap over the source + jump-to-source
+      provenance. Unavailable when there is no common source (e.g. two
+      deep-research answers to different prompts); comparison then relies on the
+      semantic + concordance views above.
+
+    TWO CUSTOMERS, ONE UI:
+      - Book distillation — agreement between a distilled product and its source /
+        another method.
+      - Deep research (Vert's team) — agreement between different deep-research
+        outputs.
+
+  next_steps:
+    - "Inspect real sample outputs before finalizing the unit taxonomy and the salience (大/中/小) rubric."
+    - "Prototype the two-panel relation-colored alignment first — it is the demo core."
+    - "Decide the concrete score: weighted-κ / Krippendorff-α style vs a simpler salience-weighted ratio; validate on a real pair."
+
+constraints:
+  - "Convey AGREEMENT (how much / where), NOT a 'which is better' ranking — better is hard to assess and out of scope."
+  - "Resource-agnostic: two arbitrary outputs, not '3 named methods of 1 book'."
+  - "Align on MEANING (semantic cosine + NLI relation), never on position. Textwise string matching is explicitly insufficient."
+  - "The score is SALIENCE-WEIGHTED (大/中/小) and always shown with its tier breakdown; big units dominate."
+  - "Borrow established vocabulary (content-analysis units, NLI relations, RST salience, weighted-κ/α, concordance) — do not invent bespoke terms."
+  - "Source-anchored / coverage / jump-to-source is CONDITIONAL on a shared source; the tool must work without one."
+  - "Semantic relation-colored two-panel view is the MVP/demo core; concordance grid is second; source-anchored lens is opt-in."
+  - "Validate the unit + salience + score design against REAL sample outputs before building."
+
+indexing:
+  type: intent
+  priority: P0
+  layer: feature
+  domain: "agreement-ui"
+  tags: ["agreement", "evaluation-end", "nli-relations", "salience-weighted", "concordance", "semantic-alignment", "resource-agnostic"]
+
+provenance:
+  source_type: user_input
+  confidence: 0.9
+  source_ref: "7-12 teammate-alignment transcript + follow-up: convey AGREEMENT not 'which is better' (better is hard to assess); three-layer model (units → NLI relation → salience-weighted 大/中/小 score); borrow vocabulary from content analysis / NLI / RST / inter-rater agreement (weighted κ, Krippendorff α, concordance)."
+  produced_by_agent: "fr-update"
+  produced_at: "2026-07-12T13:00:00Z"
+
+relations:
+  - type: refines
+    target: "intent-project-001"
+    note: "Realizes the project's evaluation end: salience-weighted agreement + relation-typed semantic alignment + conditional provenance."

@@ -1,10 +1,10 @@
 room:
-  id: "02-production-workbench"
-  name: "Production Workbench — Production End (测试端)"
+  id: "02-generation-workbench"
+  name: "Generation Workbench — Generation End"
   parent: "00-project-room"
   lifecycle: planned
   created_at: "2026-07-12T12:00:00Z"
-  updated_at: "2026-07-12T12:00:00Z"
+  updated_at: "2026-07-12T13:00:00Z"
   owner: "waynewangyuxuan"
   contributors: []
   prompt_test:

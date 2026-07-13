@@ -3,9 +3,9 @@ tree:
     - id: "00-project-room"
       path: "00-project-room/"
       lifecycle: in-dev
-    - id: "01-comparison-workbench"
-      path: "01-comparison-workbench/"
+    - id: "01-agreement-workbench"
+      path: "01-agreement-workbench/"
       lifecycle: in-dev
-    - id: "02-production-workbench"
-      path: "02-production-workbench/"
+    - id: "02-generation-workbench"
+      path: "02-generation-workbench/"
       lifecycle: planned

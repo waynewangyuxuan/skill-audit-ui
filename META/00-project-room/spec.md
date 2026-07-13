@@ -10,5 +10,5 @@ Both ends together are the deliverable (and the potential HCI paper).
 
 ## Rooms
 
-- [`01-comparison-workbench`](../01-comparison-workbench/spec.md) — **Evaluation end (评测端)**. Take any two resources/outputs and compare them side-by-side; semantic/viewpoint-level alignment highlighting so a human can do pairwise qualitative study efficiently and in batch. Serves both book-distillation compare and deep-research compare.
-- [`02-production-workbench`](../02-production-workbench/spec.md) — **Production end (测试端)**. Pick tools/scales/styles × swap corpus → generate a matrix of outputs quickly. Feeds the evaluation end.
+- [`01-agreement-workbench`](../01-agreement-workbench/spec.md) — **Evaluation end**. Take any two resources/outputs and convey **how much they agree** (salience-weighted, semantic — not textwise) and where they conflict. Deliberately not a "which is better" ranking (*better* is hard to assess). Serves both book-distillation compare and deep-research compare.
+- [`02-generation-workbench`](../02-generation-workbench/spec.md) — **Generation end**. Pick tools/scales/styles × swap corpus → generate a matrix of outputs quickly. Feeds the agreement end.

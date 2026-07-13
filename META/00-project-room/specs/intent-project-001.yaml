@@ -3,7 +3,7 @@ type: intent
 state: active
 
 intent:
-  summary: "A two-ended qualitative-comparison research platform: a PRODUCTION end (apply tools/scales to a corpus → outputs) and an EVALUATION end (side-by-side pairwise comparison of any two resources/outputs, with SEMANTIC — not textwise — alignment highlighting). Resource-agnostic; the book-distillation case is just the first user."
+  summary: "A two-ended qualitative-comparison research platform: a GENERATION end (apply tools/scales to a corpus → outputs) and an EVALUATION end that conveys HOW MUCH two outputs AGREE (salience-weighted, SEMANTIC not textwise) rather than ranking 'which is better' (better is hard to assess). Resource-agnostic; the book-distillation case is just the first user."
   detail: |
     REALIGNED 2026-07-12 (teammate-alignment discussion). The first cut of this
     spec drifted: it scoped the project as a "single-book skill-audit tool" built
@@ -16,26 +16,31 @@ intent:
     studies FAST, over arbitrary resources. Two ends, and both ends together are
     the deliverable (and the potential HCI paper):
 
-      PRODUCTION END (测试端).
+      GENERATION END (Room 02).
         A UI to pick different tools / scales / styles and apply them to a corpus,
         producing outputs. Corpus is swappable; scales are swappable; you get a
         matrix of outputs quickly and conveniently. "scale × corpus → output."
         This is the generation side that feeds the evaluation end.
 
-      EVALUATION END (评测端).
-        Take ANY TWO resources or ANY TWO outputs and compare them side-by-side,
-        in a way that lets a human do pairwise qualitative comparison efficiently
-        and in batch. This is what solves the problem Frederick raised: comparing
-        raw outputs textwise gives you no comparability — you cannot see which
-        parts are similar and which differ.
+      EVALUATION END (Room 01, "Agreement").
+        Take ANY TWO resources or ANY TWO outputs and convey HOW MUCH THEY AGREE —
+        and where they conflict — so a human can do pairwise qualitative study
+        efficiently and in batch. This is what solves the problem Frederick raised:
+        comparing raw outputs textwise gives you no comparability. Note we
+        deliberately do NOT rank "which is better": that is hard to evaluate and
+        subjective; AGREEMENT (how much / where) is the tractable, defensible frame
+        and fits the current case.
 
-    THE KILLER FEATURE — semantic, not textwise, alignment.
+    THE KILLER FEATURE — semantic agreement, not textwise similarity.
       Think of the online "plagiarism / AI-detection colour boards" that highlight
       when one passage is textually similar to another author's. We want the more
-      advanced version: highlight where two pieces express a SIMILAR VIEWPOINT or
-      claim, even when the wording is completely different. That semantic
-      alignment is the thing that makes efficient pairwise qualitative study
-      possible.
+      advanced version: highlight where two pieces express a SIMILAR VIEWPOINT (or
+      the OPPOSITE one), even when the wording is completely different. Modeled as a
+      three-layer agreement model (see Room 01): units → NLI-style relation
+      (agree/conflict/neutral) → a SALIENCE-WEIGHTED (大/中/小) agreement score, so
+      big points dominate. Borrows established vocabulary (content-analysis units,
+      NLI, RST salience, weighted-κ / Krippendorff-α, "concordance") rather than
+      inventing terms.
 
     GENERALITY IS THE POINT.
       The same platform must serve more than book distillation. Concrete second
@@ -68,8 +73,9 @@ intent:
 
 constraints:
   - "Resource-agnostic: never hard-code 'a book'. Inputs are arbitrary resources/outputs; book distillation is the first case, not the only one."
-  - "Deliverable = BOTH ends (production 测试端 + evaluation 评测端). A one-ended tool is not the thing we are pitching."
+  - "Deliverable = BOTH ends (generation + evaluation/agreement). A one-ended tool is not the thing we are pitching."
   - "The comparison must be SEMANTIC / viewpoint-level, not textwise string matching. That is the differentiator."
+  - "Convey AGREEMENT (how much / where two outputs agree, salience-weighted), NOT a 'which is better' ranking — better is hard to assess."
   - "Provenance (jump-to-source) is one evaluation-end feature, not the headline; it only applies when a shared source exists."
   - "HCI venue ⇒ story + interaction/code quality over experiment results; the UI must be polished."
   - "Frequent updates; each feature gets a 15-30s clip."
@@ -84,9 +90,9 @@ indexing:
 provenance:
   source_type: user_input
   confidence: 0.9
-  source_ref: "7-12 teammate-alignment transcript (re-scope: two ends — production/测试端 + evaluation/评测端; resource-agnostic; semantic not textwise alignment; deep-research comparison as second customer). Corrects the initial 7-10/7-12 single-book/provenance framing."
+  source_ref: "7-12 teammate-alignment transcript + follow-up (re-scope: two ends — generation + evaluation; resource-agnostic; semantic not textwise; deep-research as second customer; evaluation reframed to AGREEMENT not 'which is better' since better is hard to assess). Corrects the initial 7-10/7-12 single-book/provenance framing. Rooms renamed 7-12: agreement-workbench + generation-workbench."
   produced_by_agent: "fr-update"
-  produced_at: "2026-07-12T12:00:00Z"
+  produced_at: "2026-07-12T13:00:00Z"
 
 relations: []
 

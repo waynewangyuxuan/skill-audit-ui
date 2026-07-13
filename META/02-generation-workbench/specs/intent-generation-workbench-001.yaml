@@ -1,0 +1,65 @@
+spec_id: intent-generation-workbench-001
+type: intent
+state: active
+
+intent:
+  summary: "The generation end: a UI to pick different tools / scales / styles and apply them to a corpus, producing a matrix of outputs quickly and conveniently. Corpus swappable, scales swappable — 'scale × corpus → output'. Feeds the agreement (evaluation) end."
+  detail: |
+    RENAMED 2026-07-12 from production-workbench → generation-workbench (the old
+    测试端/评测端 pair was confusing). The generation half of the platform: the
+    agreement end (Room 01) compares outputs, but something has to PRODUCE those
+    outputs under controlled variation — that is this room.
+
+    CORE UX.
+      - Pick a corpus (swappable — a book, an article set, a prompt, any resource).
+      - Pick one or more tools / scales / styles to apply (swappable, selectable,
+        composable — e.g. different distillation methods, different "scales", or
+        different deep-research approaches).
+      - Run → get outputs. Vary either axis (corpus or scale) and re-run to build a
+        matrix of outputs fast, without hand-wiring each run.
+
+    WHY IT MATTERS.
+      This is what makes qualitative study cheap: change one variable, regenerate,
+      hand the result straight to the agreement end for side-by-side. Same shape
+      whether the "tool" is a book-distillation method or a deep-research pipeline.
+
+    RELATION TO AGREEMENT END.
+      Generation produces; agreement (Room 01) compares. The two together are the
+      deliverable (and the paper). Output artifacts from this room are the inputs
+      to Room 01.
+
+    OPEN QUESTIONS (confirm with Frederick / inspect reality first).
+      - What exactly is a "scale"/"style" as a selectable, parameterizable unit, and
+        how do we register the tools (distillation methods, deep-research pipelines)?
+      - How much of the backend is orchestration we own vs. calling existing
+        pipelines. The BACKEND (both ends) is the hard part; the UI is
+        comparatively simple.
+
+  next_steps:
+    - "Enumerate the concrete tools/scales to support first (which distillation methods, which deep-research pipelines)."
+    - "Define the output artifact contract so Room 01 (agreement) can consume generation outputs directly."
+
+constraints:
+  - "Corpus and scale/tool are BOTH swappable axes; the value is fast re-runs across that matrix."
+  - "Resource-agnostic: a 'corpus' is any resource; a 'tool' is any method/pipeline. Not book-specific."
+  - "Output artifacts must be directly consumable by the agreement end (Room 01) — define that contract early."
+  - "Backend orchestration is the hard part per the alignment discussion; UI is comparatively simple."
+
+indexing:
+  type: intent
+  priority: P1
+  layer: feature
+  domain: "generation-ui"
+  tags: ["generation-end", "scale-corpus-matrix", "orchestration", "resource-agnostic"]
+
+provenance:
+  source_type: user_input
+  confidence: 0.85
+  source_ref: "7-12 teammate-alignment transcript (测试端 = scale × corpus → output; both ends together = the deliverable; backend is the hard part). Renamed generation-workbench 7-12."
+  produced_by_agent: "fr-update"
+  produced_at: "2026-07-12T13:00:00Z"
+
+relations:
+  - type: refines
+    target: "intent-project-001"
+    note: "Realizes the project's generation end: scale × corpus → outputs that feed Room 01 (agreement)."
