@@ -1,0 +1,6 @@
+project:
+  id: "skill-audit-ui"
+  name: "Skill Audit UI"
+  description: "A UI tool for auditing distillation products — side-by-side comparison of skills/answers across pipelines, similarity highlighting, and provenance links back to the source book."
+  created_at: "2026-07-12"
+  updated_at: "2026-07-12"

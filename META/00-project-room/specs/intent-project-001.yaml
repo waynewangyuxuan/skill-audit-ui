@@ -1,0 +1,65 @@
+spec_id: intent-project-001
+type: intent
+state: active
+
+intent:
+  summary: "A UI tool for auditing distillation products, so book2skill / 女娲 outputs can actually be reviewed at scale."
+  detail: |
+    The head deliverable decided at the 7-10 group meeting. Reading distilled
+    skills from git / raw files does not scale — three people side-by-side
+    reading raw answers concluded it is unreadable. This tool makes distillation
+    products auditable.
+
+    Provenance is a chain with two hops:
+      source book → distilled methodology (skill) → final product (answer)
+
+    - Layer 2 (skill ↔ source book): "extraction provenance" — static, anchored
+      at distill time, cheap. This is the spec-named MVP and a GENERAL primitive
+      (auditing the provenance of any distillation product) — the open-source
+      wedge. Its edge over a bare text-diff+anchor tool is that it is
+      skill-structure-aware (understands method card / playbook structure).
+    - Layer 1 (answer ↔ skill): "usage / routing provenance" — dynamic, happens
+      when the skill is applied at run time, expensive. This is OUR research
+      shell (cross-pipeline compare, routing coverage as a metric, the
+      selective-context thesis) — the paper demo. It is the instance-level
+      visualization of the routing/trace eval already being built in
+      cognitive-internalization. Deferred to a second iteration (a "trace
+      drawer" on answers).
+
+    Three core features from the spec:
+      1. Side-by-side compare — up to ~3 synced-scroll panels (女娲 vs book2skill
+         skills for the same book, or multiple methods' answers).
+      2. Similar-content highlight — cosine-similarity red/yellow marking of
+         shared points.
+      3. Link to original snippet — jump from distilled output back to the
+         source book paragraph (provenance audit).
+
+    Input first assumes one book (≤1M token), preprocessed by the backend;
+    article collections come later.
+
+    Strategy: open-source before the paper to gather traffic (or submit to a
+    workshop); ship as the public demo / deploy when the paper lands.
+
+constraints:
+  - "Input first assumes a single book ≤1M token; article collections deferred."
+  - "MVP scope = Layer 2 (skill↔source provenance) + side-by-side + similarity highlight; Layer 1 answer-routing deferred to iteration 2."
+  - "Frequent updates; each feature gets a 15-30s clip."
+
+indexing:
+  type: intent
+  priority: P0
+  layer: project
+  domain: "meta"
+  tags: ["project-identity"]
+
+provenance:
+  source_type: user_input
+  confidence: 1.0
+  source_ref: "7-10 group meeting §四 (Moonbow-Intelligence/日志/Moonbow-Intelligence-7-10.md); two-layer provenance model refined in 7-12 discussion"
+  produced_by_agent: "init"
+  produced_at: "2026-07-12T00:00:00Z"
+
+relations: []
+
+anchors:
+  - file: "README.md"

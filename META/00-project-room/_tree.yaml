@@ -1,0 +1,8 @@
+tree:
+  rooms:
+    - id: "00-project-room"
+      path: "00-project-room/"
+      lifecycle: in-dev
+    - id: "01-comparison-workbench"
+      path: "01-comparison-workbench/"
+      lifecycle: in-dev

@@ -1,0 +1,11 @@
+progress:
+  completion: 0.0
+  milestones:
+    - id: scaffold
+      name: "META/ scaffold complete"
+      status: completed
+      completed_at: "2026-07-12"
+      gate: false
+      evidence:
+        - "META/00-project-room/spec.md"
+  commits: []

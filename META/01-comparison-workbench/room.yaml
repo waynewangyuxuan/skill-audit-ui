@@ -1,0 +1,14 @@
+room:
+  id: "01-comparison-workbench"
+  name: "Comparison Workbench"
+  parent: "00-project-room"
+  lifecycle: in-dev
+  created_at: "2026-07-12"
+  updated_at: "2026-07-12"
+  owner: "waynewangyuxuan"
+  contributors: []
+  prompt_test:
+    passable: null
+    last_tested: null
+    token_count: null
+  depends_on: []
