@@ -1,0 +1,63 @@
+spec_id: intent-production-workbench-001
+type: intent
+state: active
+
+intent:
+  summary: "The PRODUCTION end (测试端): a UI to pick different tools / scales / styles and apply them to a corpus, producing a matrix of outputs quickly and conveniently. Corpus swappable, scales swappable — 'scale × corpus → output'. Feeds the evaluation end."
+  detail: |
+    The generation half of the platform, added 2026-07-12 during the teammate
+    re-scope. The evaluation end (Room 01) can compare outputs, but something has
+    to PRODUCE those outputs under controlled variation — that is this room.
+
+    CORE UX.
+      - Pick a corpus (swappable — a book, an article set, a prompt, any resource).
+      - Pick one or more tools / scales / styles to apply (swappable, selectable,
+        composable — e.g. different distillation methods, different "scales", or
+        different deep-research approaches).
+      - Run → get outputs. Vary either axis (corpus or scale) and re-run to build a
+        matrix of outputs fast, without hand-wiring each run.
+
+    WHY IT MATTERS.
+      This is what makes qualitative study cheap: change one variable, regenerate,
+      hand the result straight to the evaluation end for side-by-side. Same shape
+      whether the "tool" is a book-distillation method or a deep-research pipeline.
+
+    RELATION TO EVALUATION END.
+      Production produces; evaluation compares. The two together are the deliverable
+      (and the paper). Output artifacts from this room are the inputs to Room 01.
+
+    OPEN QUESTIONS (confirm with Frederick / inspect reality first).
+      - What exactly is a "scale"/"style" as a selectable, parameterizable unit, and
+        how do we register the tools (distillation methods, deep-research pipelines)?
+      - How much of the backend is orchestration we own vs. calling existing
+        pipelines. The transcript flags the BACKEND (both ends) as the hard part;
+        the UI is comparatively simple.
+
+  next_steps:
+    - "Enumerate the concrete tools/scales to support first (which distillation methods, which deep-research pipelines)."
+    - "Define the output artifact contract so Room 01 can consume production outputs directly."
+
+constraints:
+  - "Corpus and scale/tool are BOTH swappable axes; the value is fast re-runs across that matrix."
+  - "Resource-agnostic: a 'corpus' is any resource; a 'tool' is any method/pipeline. Not book-specific."
+  - "Output artifacts must be directly consumable by the evaluation end (Room 01) — define that contract early."
+  - "Backend orchestration is the hard part per the alignment discussion; UI is comparatively simple."
+
+indexing:
+  type: intent
+  priority: P1
+  layer: feature
+  domain: "production-ui"
+  tags: ["production-end", "generation", "scale-corpus-matrix", "orchestration", "resource-agnostic"]
+
+provenance:
+  source_type: user_input
+  confidence: 0.85
+  source_ref: "7-12 teammate-alignment transcript (测试端 = scale × corpus → output; both ends together = the deliverable; backend is the hard part)."
+  produced_by_agent: "fr-update"
+  produced_at: "2026-07-12T12:00:00Z"
+
+relations:
+  - type: refines
+    target: "intent-project-001"
+    note: "Realizes the project's production end (测试端): scale × corpus → outputs that feed Room 01."

@@ -3,75 +3,74 @@ type: intent
 state: active
 
 intent:
-  summary: "Compare, over one corpus, what multiple distillation methods distilled — by building one tripartite graph (source → product → claim) and rendering it as three lenses."
+  summary: "The EVALUATION end (评测端): take any two (or a few) resources/outputs and compare them side-by-side, aligning on MEANING not position — semantic/viewpoint highlighting so a human can do pairwise qualitative study efficiently and in batch. Resource-agnostic."
   detail: |
-    Problem: the distillation products from the three methods are HETEROGENEOUS.
-      - book2skill: atomic method cards + a playbook (orchestration), each card
-        anchored back to source chapters (RAG firewall).
-      - 女娲 (Nüwa): a more holistic methodology document (structure TBC — inspect
-        a real sample before finalizing the claim layer).
-      - DSL: a structured / domain-specific-language representation.
-    Different structure, different length ⇒ they CANNOT be aligned by position
-    (left/right same row ≠ same thing). To compare, you must pick a shared axis
-    to hang the comparison on.
+    REALIGNED 2026-07-12. Was scoped as "compare, over ONE book, what THREE named
+    distillation methods (book2skill / 女娲 / DSL) distilled" — locked to one shared
+    source and three specific producers. The real thing is resource-agnostic
+    pairwise comparison; the 3-methods-of-1-book case is just one instance.
 
-    Backbone data model — ONE tripartite graph. Build it once, render three lenses:
+    THE PROBLEM (Frederick's complaint). Put two outputs next to each other and read
+    them raw and you have NO comparability — you can't see which parts say the same
+    thing and which diverge. Textwise diff / string-similarity (the online plagiarism
+    "colour boards") is not enough, because two pieces can express the SAME viewpoint
+    in completely different words. We need semantic alignment.
 
-      source span ──consumed-by──▶ product fragment ──expresses──▶ claim
-        (the book)          (method card / 女娲 段 / DSL node)   (normalized point)
+    CORE UX — side-by-side + semantic alignment.
+      Two (or up to ~3) panels, each output in its NATIVE structure. Do NOT force
+      row-alignment (position ≠ meaning). Hover / select a chunk in panel A →
+      highlight the semantically-nearest chunks in B (and C), red/yellow by strength.
+      Alignment is embedding-cosine driven, content-based. This is what turns a slow
+      manual read into a fast, batchable pairwise qualitative study.
 
-    The three user-identified perspectives are just three pivots on this graph:
+    CLAIM-NORMALIZED GRID (the scalable view).
+      Normalize each output into a set of atomic claims (embedding + clustering),
+      then render a matrix: rows = union of claims, columns = the outputs being
+      compared, cells = does / how each output expresses that claim. Surfaces
+      agreement (full row), unique contribution (single column), and conflict (all
+      express it but disagree). This is the real "compare the distillates directly,"
+      via a claim layer rather than raw files, and it generalizes to N outputs.
 
-    LENS 1 — Source-anchored (pivot on source node). MVP.
-      Left rail = whole book; spans cited by any method are highlighted. Click a
-      span → right panels show, per method, the fragment(s) that consumed it.
-      Key visual: a COVERAGE HEATMAP — for each span, how many methods touched it
-      (0/1/2/3). 3/3 = consensus (the book's important bits); 1/3 = a method's
-      idiosyncratic pick; 0 = used by nobody (missed, or noise). Directly answers
-      "same passage, multiple methods both used it — how did each consume it into
-      its methodology." Method-AGNOSTIC and cheapest: only needs the Layer-2
-      anchors already committed as the project MVP.
+    SOURCE-ANCHORED VIEW (conditional — only when a shared source exists).
+      When the two outputs are derived from the SAME source (e.g. book distillation),
+      also offer a source-anchored lens: highlight which source spans each output
+      consumed, with a coverage heatmap (how many outputs touched each span:
+      consensus vs idiosyncratic vs missed) and jump-to-source provenance. When the
+      outputs have NO shared source (e.g. two deep-research answers to different
+      prompts), this lens is simply unavailable and comparison falls back to the
+      semantic pairwise + claim-grid views above.
 
-    LENS 2 — Product-anchored side-by-side (pivot on product node).
-      The spec's ≤3-panel synced view, each product in its NATIVE structure. Do
-      NOT force row-alignment; instead hover a chunk in panel A → cosine-highlight
-      semantically-near chunks in B and C (red/yellow). Alignment is
-      content-driven, not positional. This is the spec's side-by-side + similarity
-      highlight features.
+    TWO CONCRETE CUSTOMERS this must serve with the same UI:
+      - Book distillation: compare what different methods/scales distilled from a book.
+      - Deep research (Vert's team): compare outputs of different deep-research
+        approaches to judge which is better.
 
-    LENS 3 — Claim-normalized grid (pivot on claim node).
-      Normalize all three products into a shared set of atomic claims (embedding +
-      clustering — same cosine machinery as Lens 2). Render a matrix: rows = union
-      of claims, columns = the 3 methods, cells = does/how this method expresses
-      the claim. Reveals agreement (full row), unique contribution (single column),
-      and conflict (all express it but phrasings disagree). This is the real,
-      scalable way to "compare the distillates directly" — via a claim layer, not
-      raw files.
+  next_steps:
+    - "Inspect real sample outputs (book2skill + 女娲, and one deep-research pair) before finalizing the claim/embedding layer."
+    - "Prototype the two-panel semantic-highlight interaction first — it is the demo-able core."
 
 constraints:
-  - "Products are heterogeneous — never align by position; align on source spans (Lens 1) or on claims (Lens 3)."
-  - "Build the tripartite graph ONCE; the three lenses are projections of the same graph, not three separate features."
-  - "MVP = Lens 1 (source-anchored + coverage heatmap): method-agnostic, depends only on the already-committed Layer-2 anchors."
-  - "Lens 3 depends on the cosine/similarity machinery (spec feature #2); its claim-layer design must be validated against REAL sample outputs (book2skill + 女娲) before build."
-  - "Lens 1 and Lens 2 can proceed in parallel; Lens 3 is second."
+  - "Resource-agnostic: two arbitrary outputs, not '3 named methods of 1 book'. The book case is one instance."
+  - "Align on MEANING (semantic cosine / claims), never on position. Textwise string matching is explicitly not sufficient."
+  - "Source-anchored / coverage / jump-to-source views are CONDITIONAL on a shared source; the tool must work without one."
+  - "Semantic-highlight two-panel view is the MVP and the demo core; claim-grid is second; source-anchored lens is opt-in when applicable."
+  - "Validate the claim-layer design against REAL sample outputs before building it."
 
 indexing:
   type: intent
   priority: P0
   layer: feature
   domain: "comparison-ui"
-  tags: ["comparison", "provenance", "tripartite-graph", "coverage-heatmap", "claim-grid"]
+  tags: ["comparison", "evaluation-end", "semantic-alignment", "claim-grid", "pairwise", "resource-agnostic"]
 
 provenance:
   source_type: user_input
   confidence: 0.9
-  source_ref: "7-12 design discussion — user's two perspectives (corpus-anchored consumption view; product-to-product compare) plus the third claim-normalized axis; three methods in scope tonight: book2skill, 女娲, DSL"
-  produced_by_agent: "fr-add"
-  produced_at: "2026-07-12T00:00:00Z"
+  source_ref: "7-12 teammate-alignment transcript (evaluation end = any two resources, semantic not textwise, deep-research compare as second customer). Generalizes the earlier 7-12 book/3-methods/tripartite-graph framing."
+  produced_by_agent: "fr-update"
+  produced_at: "2026-07-12T12:00:00Z"
 
 relations:
   - type: refines
     target: "intent-project-001"
-    note: "Realizes the project's side-by-side compare + similarity highlight + provenance features."
-
-anchors: []
+    note: "Realizes the project's evaluation end (评测端): side-by-side + semantic alignment + conditional provenance."

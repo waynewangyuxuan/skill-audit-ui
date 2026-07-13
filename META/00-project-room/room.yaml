@@ -1,10 +1,10 @@
 room:
   id: "00-project-room"
-  name: "Skill Audit UI Project Room"
+  name: "Qualitative-Comparison Platform Project Room"
   parent: null
   lifecycle: in-dev
   created_at: "2026-07-12"
-  updated_at: "2026-07-12"
+  updated_at: "2026-07-12T12:00:00Z"
   owner: "waynewangyuxuan"
   contributors: []
   prompt_test:

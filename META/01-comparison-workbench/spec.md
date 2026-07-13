@@ -1,31 +1,37 @@
-# Room 01 · Comparison Workbench
+# Room 01 · Comparison Workbench — Evaluation End (评测端)
 
-> Compare, over one corpus, what multiple distillation methods (book2skill / 女娲 / DSL) distilled — via one tripartite graph rendered as three lenses.
+> Take any two (or a few) resources/outputs and compare them side-by-side, aligning on **meaning, not position** — semantic/viewpoint highlighting so a human can do pairwise qualitative study efficiently and in batch. Resource-agnostic.
 
 - **Intent**: [`specs/intent-comparison-workbench-001.yaml`](specs/intent-comparison-workbench-001.yaml)
 
-## What lives here
+## The problem
 
-The core comparison UX. The distillation products are **heterogeneous**
-(book2skill = method cards + playbook with anchors; 女娲 = holistic
-methodology; DSL = structured representation) — different structure,
-different length — so they cannot be aligned by position. This room's
-job is to find the shared axes to hang comparison on.
+Two outputs read raw, side by side, have no comparability — you can't tell which
+parts agree and which diverge. Textwise similarity (the online plagiarism "colour
+boards") misses it, because the same viewpoint can be phrased completely
+differently. This room's job is **semantic** alignment.
 
-Backbone data model — one tripartite graph:
+## Three views (all projections over the same content, by decreasing dependency on a shared source)
 
-    source span ──consumed-by──▶ product fragment ──expresses──▶ claim
+1. **Semantic pairwise side-by-side** — MVP / demo core. ≤3 native-structure
+   panels; hover a chunk → cosine-highlight the semantically-nearest chunks in the
+   others (red/yellow). Content-driven, never positional. Works for ANY two outputs.
+2. **Claim-normalized grid** — the scalable view. Normalize each output into atomic
+   claims (embedding + clustering); matrix of claims × outputs shows agreement /
+   unique / conflict. Generalizes to N outputs; still needs no shared source.
+3. **Source-anchored lens** — CONDITIONAL, only when the outputs share a source
+   (e.g. book distillation): coverage heatmap over the source + jump-to-source
+   provenance. Unavailable when there is no common source (e.g. two deep-research
+   answers to different prompts).
 
-Three lenses = three pivots on that graph:
-1. **Source-anchored** (pivot on source) — MVP, method-agnostic, only
-   needs Layer-2 anchors. Coverage heatmap over the book.
-2. **Product-anchored side-by-side** (pivot on product) — the spec's
-   ≤3-panel view; alignment is cosine-similarity-driven, not positional.
-3. **Claim-normalized grid** (pivot on claim) — normalize each product
-   into atomic claims, render an agreement/unique/conflict matrix. The
-   real scalable "compare the distillates directly".
+## Must serve both customers with one UI
 
-Belongs here: comparison views, the graph data model, coverage/claim
-computation. Does NOT belong here: single-book ingest/anchoring
-mechanics (source project pipelines), the Layer-1 answer-routing
-"trace drawer" (deferred, likely its own room later).
+- Book distillation — compare what different methods/scales distilled from a book.
+- Deep research (Vert's team) — compare deep-research approaches to judge which is better.
+
+## Belongs here / not here
+
+Belongs: the comparison views, the embedding/similarity + claim computation, the
+alignment interaction. Does NOT belong: generating the outputs in the first place
+(that is Room 02, the production end); source ingest/anchoring mechanics of any
+specific pipeline.

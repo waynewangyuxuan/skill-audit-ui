@@ -1,6 +1,6 @@
 project:
   id: "skill-audit-ui"
-  name: "Skill Audit UI"
-  description: "A UI tool for auditing distillation products — side-by-side comparison of skills/answers across pipelines, similarity highlighting, and provenance links back to the source book."
+  name: "Qualitative-Comparison Platform"
+  description: "A two-ended platform for running qualitative/case studies fast over arbitrary resources. Production end: apply tools/scales to a corpus → outputs. Evaluation end: side-by-side pairwise comparison of any two resources/outputs, with semantic (not textwise) alignment highlighting. Book-distillation auditing is the first user; deep-research comparison is a second."
   created_at: "2026-07-12"
-  updated_at: "2026-07-12"
+  updated_at: "2026-07-12T12:00:00Z"

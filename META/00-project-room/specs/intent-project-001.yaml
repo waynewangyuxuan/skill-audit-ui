@@ -3,46 +3,75 @@ type: intent
 state: active
 
 intent:
-  summary: "A UI tool for auditing distillation products, so book2skill / 女娲 outputs can actually be reviewed at scale."
+  summary: "A two-ended qualitative-comparison research platform: a PRODUCTION end (apply tools/scales to a corpus → outputs) and an EVALUATION end (side-by-side pairwise comparison of any two resources/outputs, with SEMANTIC — not textwise — alignment highlighting). Resource-agnostic; the book-distillation case is just the first user."
   detail: |
-    The head deliverable decided at the 7-10 group meeting. Reading distilled
-    skills from git / raw files does not scale — three people side-by-side
-    reading raw answers concluded it is unreadable. This tool makes distillation
-    products auditable.
+    REALIGNED 2026-07-12 (teammate-alignment discussion). The first cut of this
+    spec drifted: it scoped the project as a "single-book skill-audit tool" built
+    around a provenance chain (book → skill → answer). That was too narrow on
+    three counts — it locked input to one book, it only modelled the evaluation
+    half, and it made provenance the headline instead of the comparison itself.
+    This rewrite restores the real direction.
 
-    Provenance is a chain with two hops:
-      source book → distilled methodology (skill) → final product (answer)
+    WHAT WE ARE ACTUALLY BUILDING — a general tool to run qualitative / case
+    studies FAST, over arbitrary resources. Two ends, and both ends together are
+    the deliverable (and the potential HCI paper):
 
-    - Layer 2 (skill ↔ source book): "extraction provenance" — static, anchored
-      at distill time, cheap. This is the spec-named MVP and a GENERAL primitive
-      (auditing the provenance of any distillation product) — the open-source
-      wedge. Its edge over a bare text-diff+anchor tool is that it is
-      skill-structure-aware (understands method card / playbook structure).
-    - Layer 1 (answer ↔ skill): "usage / routing provenance" — dynamic, happens
-      when the skill is applied at run time, expensive. This is OUR research
-      shell (cross-pipeline compare, routing coverage as a metric, the
-      selective-context thesis) — the paper demo. It is the instance-level
-      visualization of the routing/trace eval already being built in
-      cognitive-internalization. Deferred to a second iteration (a "trace
-      drawer" on answers).
+      PRODUCTION END (测试端).
+        A UI to pick different tools / scales / styles and apply them to a corpus,
+        producing outputs. Corpus is swappable; scales are swappable; you get a
+        matrix of outputs quickly and conveniently. "scale × corpus → output."
+        This is the generation side that feeds the evaluation end.
 
-    Three core features from the spec:
-      1. Side-by-side compare — up to ~3 synced-scroll panels (女娲 vs book2skill
-         skills for the same book, or multiple methods' answers).
-      2. Similar-content highlight — cosine-similarity red/yellow marking of
-         shared points.
-      3. Link to original snippet — jump from distilled output back to the
-         source book paragraph (provenance audit).
+      EVALUATION END (评测端).
+        Take ANY TWO resources or ANY TWO outputs and compare them side-by-side,
+        in a way that lets a human do pairwise qualitative comparison efficiently
+        and in batch. This is what solves the problem Frederick raised: comparing
+        raw outputs textwise gives you no comparability — you cannot see which
+        parts are similar and which differ.
 
-    Input first assumes one book (≤1M token), preprocessed by the backend;
-    article collections come later.
+    THE KILLER FEATURE — semantic, not textwise, alignment.
+      Think of the online "plagiarism / AI-detection colour boards" that highlight
+      when one passage is textually similar to another author's. We want the more
+      advanced version: highlight where two pieces express a SIMILAR VIEWPOINT or
+      claim, even when the wording is completely different. That semantic
+      alignment is the thing that makes efficient pairwise qualitative study
+      possible.
 
-    Strategy: open-source before the paper to gather traffic (or submit to a
-    workshop); ship as the public demo / deploy when the paper lands.
+    GENERALITY IS THE POINT.
+      The same platform must serve more than book distillation. Concrete second
+      customer: Vert's team comparing different deep-research approaches — different
+      resources answering different questions, produced by different methods, and
+      you want a side-by-side to judge which method is better. If the eval end is
+      resource-agnostic, it covers both.
+
+    PROVENANCE IS DEMOTED.
+      "Jump from an output fragment back to its source snippet" is still valuable,
+      but it is now ONE feature of the evaluation end, not the project's identity.
+      Where a shared source exists (e.g. book distillation) we can also show
+      source-anchored / coverage views; where it does not (two deep-research
+      outputs to different prompts) the comparison falls back to pure semantic
+      pairwise alignment.
+
+    PAPER ANGLE.
+      Target an HCI-style venue (deadline ~mid-Sep, to be confirmed with
+      Frederick). For that class of venue the bar is the STORY and the CODE /
+      interaction quality, not experimental results — so the UI must look and feel
+      good. Direction still to be confirmed with Frederick via a short doc + diagram.
+
+    OPEN-SOURCE.
+      There is hesitation about open-sourcing prematurely given the paper. Repo is
+      currently public; revisit before/at paper submission.
+
+  next_steps:
+    - "Write the two-end concept doc + a diagram; send to Frederick to confirm direction."
+    - "Stand up the evaluation-end UI first (fastest path to a demo-able artifact)."
 
 constraints:
-  - "Input first assumes a single book ≤1M token; article collections deferred."
-  - "MVP scope = Layer 2 (skill↔source provenance) + side-by-side + similarity highlight; Layer 1 answer-routing deferred to iteration 2."
+  - "Resource-agnostic: never hard-code 'a book'. Inputs are arbitrary resources/outputs; book distillation is the first case, not the only one."
+  - "Deliverable = BOTH ends (production 测试端 + evaluation 评测端). A one-ended tool is not the thing we are pitching."
+  - "The comparison must be SEMANTIC / viewpoint-level, not textwise string matching. That is the differentiator."
+  - "Provenance (jump-to-source) is one evaluation-end feature, not the headline; it only applies when a shared source exists."
+  - "HCI venue ⇒ story + interaction/code quality over experiment results; the UI must be polished."
   - "Frequent updates; each feature gets a 15-30s clip."
 
 indexing:
@@ -50,14 +79,14 @@ indexing:
   priority: P0
   layer: project
   domain: "meta"
-  tags: ["project-identity"]
+  tags: ["project-identity", "qualitative-comparison", "two-ended", "semantic-alignment"]
 
 provenance:
   source_type: user_input
-  confidence: 1.0
-  source_ref: "7-10 group meeting §四 (Moonbow-Intelligence/日志/Moonbow-Intelligence-7-10.md); two-layer provenance model refined in 7-12 discussion"
-  produced_by_agent: "init"
-  produced_at: "2026-07-12T00:00:00Z"
+  confidence: 0.9
+  source_ref: "7-12 teammate-alignment transcript (re-scope: two ends — production/测试端 + evaluation/评测端; resource-agnostic; semantic not textwise alignment; deep-research comparison as second customer). Corrects the initial 7-10/7-12 single-book/provenance framing."
+  produced_by_agent: "fr-update"
+  produced_at: "2026-07-12T12:00:00Z"
 
 relations: []
 

@@ -6,3 +6,6 @@ tree:
     - id: "01-comparison-workbench"
       path: "01-comparison-workbench/"
       lifecycle: in-dev
+    - id: "02-production-workbench"
+      path: "02-production-workbench/"
+      lifecycle: planned
